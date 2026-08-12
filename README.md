@@ -13,7 +13,7 @@ A Flask web application for detecting emotions across text, audio, and video inp
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/<your-username>/<your-repo-name>.git
+   git clone https://github.com/Jeevanb12/emotion-text-video-audio.git
    cd emotion_text_video_audio
    ```
 
