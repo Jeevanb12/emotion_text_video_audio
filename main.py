@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for
 import cv2
 import numpy as np
 import os
+os.environ["KERAS_BACKEND"] = "torch"
 import tempfile
 import pickle
 import random
@@ -14,7 +15,10 @@ import torch
 from collections import Counter
 import transformers, sys
 from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
-from tensorflow.keras.models import load_model
+try:
+    from keras.models import load_model
+except ImportError:
+    from tensorflow.keras.models import load_model
 import sounddevice as sd
 import wave
 import time
