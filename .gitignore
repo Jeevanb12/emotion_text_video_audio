@@ -1,0 +1,22 @@
+# Large Model Weights and Archives (>100MB barred by GitHub)
+trnsformer.zip
+*.safetensors
+*.pkl
+trnsformer/
+
+# Temporary recordings and uploads generated at runtime
+temp_recording_*.wav
+uploads/*
+!uploads/.gitkeep
+
+# Python cache & virtual environment
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+venv/
+env/
+.env
+
+# OS / System files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎭 Emotion AI Analyzer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            background: white;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab:hover:not(.active) {
+            background: #f8f9fa;
+            color: #667eea;
+        }
+
+        .content-section {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            margin: 1rem 0;
+            background: #f8f9ff;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: #f0f0ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #28a745;
+            background: #f0fff0;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .record-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+            margin: 1rem;
+        }
+
+        .record-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .record-btn.recording {
+            background: #dc3545;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .text-area {
+            width: 100%;
+            min-height: 150px;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        .text-area:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .example-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .example-btn {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .example-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(116, 185, 255, 0.3);
+        }
+
+        .result {
+            background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            margin: 2rem 0;
+            box-shadow: 0 10px 30px rgba(0, 184, 148, 0.3);
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .emotion-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .emotion-text {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .transcription {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            font-style: italic;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .duration-slider {
+            width: 100%;
+            margin: 1rem 0;
+        }
+
+        .stats {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            text-align: center;
+            color: #666;
+        }
+
+        .footer {
+            text-align: center;
+            color: #666;
+            margin-top: 3rem;
+            padding: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 0 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎭 Emotion AI Analyzer</h1>
+            <p>Advanced multimodal emotion detection using AI • Analyze video, audio, and text</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('video')">📹 Video Analysis</button>
+            <button class="tab" onclick="showTab('audio')">🎵 Audio Analysis</button>
+            <button class="tab" onclick="showTab('text')">📝 Text Analysis</button>
+        </div>
+
+        <!-- Video Analysis Section -->
+        <div id="video" class="content-section active">
+            <h2>🎬 Video Emotion Analysis</h2>
+            <p>Upload a video file to analyze emotions from facial expressions, audio, and speech transcription.</p>
+            
+            <div class="upload-area" id="video-upload-area">
+                <div>
+                    <h3>📁 Drop your video here or click to browse</h3>
+                    <p>Supports MP4, AVI, MOV files</p>
+                    <input type="file" id="video-input" class="file-input" accept=".mp4,.avi,.mov" />
+                    <button class="upload-btn" onclick="document.getElementById('video-input').click()">
+                        Choose Video File
+                    </button>
+                </div>
+            </div>
+            
+            <button class="upload-btn" onclick="analyzeVideo()" id="video-analyze-btn" style="display: none;">
+                🚀 Analyze Video
+            </button>
+        </div>
+
+        <!-- Audio Analysis Section -->
+        <div id="audio" class="content-section">
+            <h2>🎵 Audio Emotion Analysis</h2>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;">
+                <!-- Live Recording -->
+                <div>
+                    <h3>🎤 Record Live Audio</h3>
+                    <p>Record your voice for 3-10 seconds</p>
+                    
+                    <div style="text-align: center; margin: 1rem 0;">
+                        <label for="duration">Duration: <span id="duration-value">5</span> seconds</label>
+                        <input type="range" id="duration" class="duration-slider" min="3" max="10" value="5" oninput="updateDuration(this.value)">
+                    </div>
+                    
+                    <button class="record-btn" onclick="recordAudio()" id="record-btn">
+                        🎤 Start Recording
+                    </button>
+                </div>
+
+                <!-- File Upload -->
+                <div>
+                    <h3>📁 Upload Audio File</h3>
+                    <div class="upload-area" id="audio-upload-area">
+                        <div>
+                            <p>Drop audio file here</p>
+                            <input type="file" id="audio-input" class="file-input" accept=".wav,.mp3,.m4a,.ogg" />
+                            <button class="upload-btn" onclick="document.getElementById('audio-input').click()">
+                                Choose Audio File
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button class="upload-btn" onclick="analyzeAudioFile()" id="audio-analyze-btn" style="display: none;">
+                        🚀 Analyze Audio
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Text Analysis Section -->
+        <div id="text" class="content-section">
+            <h2>📝 Text Emotion Analysis</h2>
+            <p>Enter text to analyze the emotional content using natural language processing.</p>
+            
+            <textarea 
+                id="text-input" 
+                class="text-area" 
+                placeholder="Type or paste your text here... (e.g., 'I'm feeling really excited about this new project!')"
+            ></textarea>
+            
+            <div class="example-buttons">
+                <button class="example-btn" onclick="setExample('I am absolutely thrilled about this amazing opportunity! Life is wonderful!')">😊 Happy Example</button>
+                <button class="example-btn" onclick="setExample('I feel so disappointed and heartbroken. Nothing seems to go right anymore.')">😢 Sad Example</button>
+                <button class="example-btn" onclick="setExample('This is absolutely infuriating! I cannot believe this happened again!')">😠 Angry Example</button>
+                <button class="example-btn" onclick="setExample('I am really worried about what might happen. This makes me so anxious and scared.')">😨 Fear Example</button>
+            </div>
+            
+            <button class="upload-btn" onclick="analyzeText()">🚀 Analyze Text</button>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>🔄 Processing... Please wait</p>
+        </div>
+
+        <!-- Error Display -->
+        <div class="error" id="error"></div>
+
+        <!-- Result Display -->
+        <div class="result" id="result">
+            <div class="emotion-icon" id="emotion-icon"></div>
+            <div class="emotion-text" id="emotion-text"></div>
+            <div class="transcription" id="transcription" style="display: none;"></div>
+            <div class="stats" id="stats" style="display: none;"></div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>🤖 Powered by Deep Learning • Built with Flask</p>
+            <p>Supports multimodal emotion recognition: Video, Audio, and Text analysis</p>
+        </div>
+    </div>
+
+    <script>
+        let isRecording = false;
+
+        // Tab switching
+        function showTab(tabName) {
+            // Hide all content sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected content section
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+            
+            // Hide results when switching tabs
+            hideResult();
+        }
+
+        // Duration slider update
+        function updateDuration(value) {
+            document.getElementById('duration-value').textContent = value;
+        }
+
+        // Text examples
+        function setExample(text) {
+            document.getElementById('text-input').value = text;
+        }
+
+        // Show/hide functions
+        function showLoading() {
+            document.getElementById('loading').classList.add('show');
+            hideResult();
+            hideError();
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.remove('show');
+        }
+
+        function showResult(data) {
+            const result = document.getElementById('result');
+            document.getElementById('emotion-icon').textContent = data.emotion_icon;
+            document.getElementById('emotion-text').textContent = `${data.final_prediction.toUpperCase()}`;
+            
+            // Show transcription if available
+            if (data.transcription) {
+                document.getElementById('transcription').style.display = 'block';
+                document.getElementById('transcription').innerHTML = `<strong>💬 Transcription:</strong> "${data.transcription}"`;
+            } else {
+                document.getElementById('transcription').style.display = 'none';
+            }
+            
+            // Show stats if available
+            if (data.word_count !== undefined) {
+                document.getElementById('stats').style.display = 'block';
+                document.getElementById('stats').innerHTML = `📊 Words: ${data.word_count} | Characters: ${data.char_count}`;
+            } else {
+                document.getElementById('stats').style.display = 'none';
+            }
+            
+            result.classList.add('show');
+            hideLoading();
+        }
+
+        function hideResult() {
+            document.getElementById('result').classList.remove('show');
+        }
+
+        function showResult(data) {
+            const result = document.getElementById('result');
+            document.getElementById('emotion-icon').textContent = data.emotion_icon;
+            document.getElementById('emotion-text').textContent = `${data.final_prediction.toUpperCase()}`;
+            
+            // Show transcription if available
+            if (data.transcription) {
+                document.getElementById('transcription').style.display = 'block';
+                document.getElementById('transcription').innerHTML = `<strong>💬 Transcription:</strong> "${data.transcription}"`;
+            } else {
+                document.getElementById('transcription').style.display = 'none';
+            }
+            
+            // Show stats if available
+            if (data.word_count !== undefined) {
+                document.getElementById('stats').style.display = 'block';
+                document.getElementById('stats').innerHTML = `📊 Words: ${data.word_count} | Characters: ${data.char_count}`;
+            } else {
+                document.getElementById('stats').style.display = 'none';
+            }
+            
+            result.classList.add('show');
+            hideLoading();
+        }
+
+        function hideResult() {
+            document.getElementById('result').classList.remove('show');
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            hideLoading();
+        }
+
+        function hideError() {
+            document.getElementById('error').classList.remove('show');
+        }
+
+        // Video file handling
+        document.getElementById('video-input').addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                document.getElementById('video-analyze-btn').style.display = 'block';
+                const fileName = e.target.files[0].name;
+                document.querySelector('#video-upload-area h3').textContent = `📁 ${fileName}`;
+            }
+        });
+
+        // Audio file handling
+        document.getElementById('audio-input').addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                document.getElementById('audio-analyze-btn').style.display = 'block';
+                const fileName = e.target.files[0].name;
+                document.querySelector('#audio-upload-area p').textContent = fileName;
+            }
+        });
+
+        // Drag and drop for video
+        const videoUploadArea = document.getElementById('video-upload-area');
+        
+        videoUploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+
+        videoUploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+        });
+
+        videoUploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('video-input').files = files;
+                document.getElementById('video-analyze-btn').style.display = 'block';
+                const fileName = files[0].name;
+                document.querySelector('#video-upload-area h3').textContent = `📁 ${fileName}`;
+            }
+        });
+
+        // Video analysis
+        function analyzeVideo() {
+            const fileInput = document.getElementById('video-input');
+            if (!fileInput.files[0]) {
+                showError('Please select a video file first.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('video', fileInput.files[0]);
+
+            showLoading();
+
+            fetch('/analyze_video', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    showResult(data);
+                }
+            })
+            .catch(error => {
+                showError('Error analyzing video: ' + error.message);
+            });
+        }
+
+        // Audio file analysis
+        function analyzeAudioFile() {
+            const fileInput = document.getElementById('audio-input');
+            if (!fileInput.files[0]) {
+                showError('Please select an audio file first.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('audio', fileInput.files[0]);
+
+            showLoading();
+
+            fetch('/analyze_audio', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    showResult(data);
+                }
+            })
+            .catch(error => {
+                showError('Error analyzing audio: ' + error.message);
+            });
+        }
+
+        // Audio recording
+        function recordAudio() {
+            if (isRecording) return;
+
+            const duration = document.getElementById('duration').value;
+            const recordBtn = document.getElementById('record-btn');
+
+            isRecording = true;
+            recordBtn.classList.add('recording');
+            recordBtn.textContent = `🔴 Recording... (${duration}s)`;
+
+            showLoading();
+
+            fetch(`/record_audio?duration=${duration}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    showResult(data);
+                }
+            })
+            .catch(error => {
+                showError('Error recording audio: ' + error.message);
+            })
+            .finally(() => {
+                isRecording = false;
+                recordBtn.classList.remove('recording');
+                recordBtn.textContent = '🎤 Start Recording';
+            });
+        }
+
+        // Text analysis
+        function analyzeText() {
+            const text = document.getElementById('text-input').value.trim();
+            if (!text) {
+                showError('Please enter some text to analyze.');
+                return;
+            }
+
+            showLoading();
+
+            fetch('/analyze_text', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text: text })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    showResult(data);
+                }
+            })
+            .catch(error => {
+                showError('Error analyzing text: ' + error.message);
+            });
+        }
+    </script>
+</body>
+</html>
